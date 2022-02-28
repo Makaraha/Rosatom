@@ -29,10 +29,10 @@ namespace Rosatom
                 var repeater = new TryRepeater();
                 var response = await await repeater.RepeatForAsync(async () => await client.GetAsync(uri), 5);
                 var contentDisp = response.Content.Headers.GetValues("content-disposition");
-                var extRegex = new Regex(@"\.[A-Za-z]+$");
+                var extRegex = new Regex(@"\.[A-Za-z]*$");
                 var extension = extRegex.Match(contentDisp.First()).Value;
 
-                if (extension is null)
+                if (extension is null || extension == "")
                     throw new Exception($"Empty extnension. Conent-disposition - {contentDisp}");
 
                 return extension[1..].ToLower();
