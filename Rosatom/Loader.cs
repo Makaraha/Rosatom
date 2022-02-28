@@ -28,7 +28,7 @@ namespace Rosatom
             var web = new HtmlWeb();
             var repeater = new TryRepeater();
 
-            return await repeater.RepeatForAsync(() => web.Load(url), 5);
+            return await repeater.RepeatUntilSuccessAsync(() => web.Load(url));
         }
     }
 }

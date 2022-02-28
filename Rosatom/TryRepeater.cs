@@ -9,12 +9,19 @@
         {
             while (true)
             {
-                var task = Task.Run(function);
+                try
+                {
+                    var task = Task.Run(function);
 
-                if (task.Wait(TimeSpan.FromSeconds(Timeout)))
-                    return await task;
-                else
-                    Thread.Sleep(Delay);
+                    if (task.Wait(TimeSpan.FromSeconds(Timeout)))
+                        return await task;
+                    else
+                        throw new Exception("Time out");
+                }
+                catch (Exception)
+                {
+                    await Task.Delay(Delay);
+                }
             }
         }
 
@@ -22,12 +29,41 @@
         {
             for (int i = 0; i < amount; i++)
             {
-                var task = Task.Run(function);
+                try
+                {
+                    var task = Task.Run(function);
 
-                if (task.Wait(TimeSpan.FromSeconds(Timeout)))
-                    return await task;
-                else
-                    Thread.Sleep(Delay);
+                    if (task.Wait(TimeSpan.FromSeconds(Timeout)))
+                        return await task;
+                    else
+                        throw new Exception("Time out");
+                }
+                catch (Exception)
+                {
+                    await Task.Delay(Delay);
+                }
+            }
+
+            throw new Exception("Не удалось выполнить операцию");
+        }
+
+        internal async Task RepeatForAsync(Action action, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                try
+                {
+                    var task = Task.Run(action);
+
+                    if (task.Wait(TimeSpan.FromSeconds(Timeout)))
+                        return;
+                    else
+                        throw new Exception("Time out");
+                }
+                catch (Exception)
+                {
+                    await Task.Delay(Delay);
+                }
             }
 
             throw new Exception("Не удалось выполнить операцию");

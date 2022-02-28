@@ -15,8 +15,9 @@ namespace Rosatom
             document.Extension = extension;
             document.Url = uri;
 
+            var repeater = new TryRepeater();
             using (var client = new WebClient())
-                await client.DownloadFileTaskAsync(new Uri(uri), Path.Combine(path, fileName));
+                await repeater.RepeatForAsync(() => client.DownloadFile(new Uri(uri), Path.Combine(path, fileName)), 5);
 
             return document;
         }
@@ -25,11 +26,10 @@ namespace Rosatom
         {
             using (var client = new HttpClient())
             {
-                var message = new HttpRequestMessage();
-                message.RequestUri = new Uri(uri);
-                var response = await client.SendAsync(message);
+                var repeater = new TryRepeater();
+                var response = await await repeater.RepeatForAsync(async () => await client.GetAsync(uri), 5);
                 var contentDisp = response.Content.Headers.GetValues("content-disposition");
-                var extRegex = new Regex(@"\.[A-Za-z]*");
+                var extRegex = new Regex(@"\.[A-Za-z]+$");
                 var extension = extRegex.Match(contentDisp.First()).Value;
 
                 if (extension is null)
